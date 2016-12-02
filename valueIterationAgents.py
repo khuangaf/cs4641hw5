@@ -49,6 +49,7 @@ class ValueIterationAgent(ValueEstimationAgent):
           nextValue = 0.0
           for nextState, prob in mdp.getTransitionStatesAndProbs(currentState, action):
             reward = mdp.getReward(currentState, action, nextState)
+
             nextValue += prob*(reward + discount * previousValues[nextState])
           if nextValue > maxValue:
             # print nextValue
@@ -74,7 +75,8 @@ class ValueIterationAgent(ValueEstimationAgent):
     qvalue = 0.0
     for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
       reward = self.mdp.getReward(state, action, nextState)
-      qvalue += prob * (reward + self.discount * self.values[nextState])
+      
+      qvalue += prob * (reward + self.discount * self.getValue(nextState))
     return qvalue
 
   def getPolicy(self, state):
@@ -86,12 +88,21 @@ class ValueIterationAgent(ValueEstimationAgent):
       terminal state, you should return None.
     """
     "*** YOUR CODE HERE ***"
-    mdp = self.mdp
+    # mdp = self.mdp
     maxValue = -9999999
     bestAction = None
-    for action in mdp.getPossibleActions(state):
+    if self.mdp.isTerminal(state):
+      return bestAction
+    # for action in mdp.getPossibleActions(state):
+    #   print action
+    # print "---------------------"      
+    for action in self.mdp.getPossibleActions(state):
+      # print action, self.getQValue(state, action)
+      # print "------"
       if self.getQValue(state, action) > maxValue:
         bestAction = action
+        maxValue = self.getQValue(state, action)
+    
     return bestAction
 
   def getAction(self, state):
