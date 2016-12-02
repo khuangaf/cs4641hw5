@@ -7,7 +7,7 @@
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
 
 import mdp, util
-
+from copy import deepcopy
 from learningAgents import ValueEstimationAgent
 
 class ValueIterationAgent(ValueEstimationAgent):
@@ -35,9 +35,26 @@ class ValueIterationAgent(ValueEstimationAgent):
     self.discount = discount
     self.iterations = iterations
     self.values = util.Counter() # A Counter is a dict with default 0
-     
-    "*** YOUR CODE HERE ***"
     
+    "*** YOUR CODE HERE ***"
+    for i in range(iterations):
+      previousValues = deepcopy(self.values)
+      for currentState in mdp.getStates():
+        # if mdp.getPossibleActions(currentState) == None:
+        #   continue
+        if mdp.isTerminal(currentState):
+          continue
+        maxValue = -1
+        for action in mdp.getPossibleActions(currentState):
+          nextValue = 0.0
+          for nextState, prob in mdp.getTransitionStatesAndProbs(currentState, action):
+            reward = mdp.getReward(currentState, action, nextState)
+            nextValue += prob*(reward + discount * previousValues[nextState])
+          if nextValue > maxValue:
+            # print nextValue
+            maxValue = nextValue
+        self.values[currentState] = maxValue
+
   def getValue(self, state):
     """
       Return the value of the state (computed in __init__).
@@ -54,7 +71,11 @@ class ValueIterationAgent(ValueEstimationAgent):
       to derive it on the fly.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    qvalue = 0.0
+    for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
+      reward = self.mdp.getReward(state, action, nextState)
+      qvalue += prob * (reward + self.discount * self.values[nextState])
+    return qvalue
 
   def getPolicy(self, state):
     """
@@ -65,7 +86,13 @@ class ValueIterationAgent(ValueEstimationAgent):
       terminal state, you should return None.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    mdp = self.mdp
+    maxValue = -9999999
+    bestAction = None
+    for action in mdp.getPossibleActions(state):
+      if self.getQValue(state, action) > maxValue:
+        bestAction = action
+    return bestAction
 
   def getAction(self, state):
     "Returns the policy at the state (no exploration)."
