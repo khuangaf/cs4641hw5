@@ -44,7 +44,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         #   continue
         if mdp.isTerminal(currentState):
           continue
-        maxValue = -1
+        maxValue = -99999999999
         for action in mdp.getPossibleActions(currentState):
           nextValue = 0.0
           for nextState, prob in mdp.getTransitionStatesAndProbs(currentState, action):
