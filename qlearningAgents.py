@@ -58,8 +58,11 @@ class QLearningAgent(ReinforcementAgent):
     """
     "*** YOUR CODE HERE ***"
     # util.raiseNotDefined()
-    if self.getLegalActions(state) == None:
+    # print state, self.getLegalActions(state), len(self.getLegalActions(state))
+
+    if len(self.getLegalActions(state)) == 0:
       return 0.0
+
     maxValue = -999999999
     for action in self.getLegalActions(state):
       if self.getQValue(state,action) > maxValue:
@@ -74,15 +77,25 @@ class QLearningAgent(ReinforcementAgent):
     """
     "*** YOUR CODE HERE ***"
     # util.raiseNotDefined()
-    if self.getLegalActions(state) == None:
+    
+    if len(self.getLegalActions(state)) == 0:      
       return None
     maxValue = -999999999
     bestAction = None
+    bestActionSet = set()
     for action in self.getLegalActions(state):
       if self.getQValue(state,action) > maxValue:
         maxValue = self.getQValue(state,action)
         bestAction = action
-    return bestAction    
+      elif self.getQValue(state,action) == maxValue:
+        bestActionSet.add(action)
+        bestActionSet.add(bestAction)
+    if len(bestActionSet) == 0:
+      return bestAction    
+    else:
+      #break ties randomly
+      # print bestActionSet
+      return random.choice(list(bestActionSet))
 
   def getAction(self, state):
     """
@@ -120,9 +133,11 @@ class QLearningAgent(ReinforcementAgent):
     """
     "*** YOUR CODE HERE ***"
     # util.raiseNotDefined()
-    nextAction = self.getAction(nextState)
-    sample = reward + self.discount * self.getQValue(nextState, nextAction)
+
+    # nextAction = self.getAction(nextState)
+    sample = reward + self.discount * self.getValue(nextState)
     self.qValue[(state,action)] = self.getQValue(state,action) * (1-self.alpha) + self.alpha* sample
+    # self.qValue[(state, action)] = self.alpha * reward + self.discount* self.getQValue(nextState,nextAction)
 
 class PacmanQAgent(QLearningAgent):
   "Exactly the same as QLearningAgent, but with different default parameters"
