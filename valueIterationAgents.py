@@ -60,6 +60,8 @@ class ValueIterationAgent(ValueEstimationAgent):
     """
       Return the value of the state (computed in __init__).
     """
+    # for a in self.values:
+    #   print a, self.values[a]
     return self.values[state]
 
 
